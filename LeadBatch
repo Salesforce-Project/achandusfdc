@@ -1,0 +1,42 @@
+Apex Class
+
+global class LeadBatch implements Database.Batchable<sobject> {
+    global Database.QueryLocator start(Database.BatchableContext bc){
+      return  Database.getQueryLocator('select id,country from Lead');
+    }
+    global void execute (Database.BatchableContext bc, List<Lead> scope){
+        for(Lead l:scope){
+            if(l.country=='US'){
+                l.Rating='hot';
+                l.LeadSource='web';
+            }
+        }update scope;
+    }
+    global void finish(Database.BatchableContext bc){
+        
+    }
+}
+
+TestClass:
+@isTest
+
+private class LeadBatch_Test {
+    @istest()
+     static void testMe(){
+        Lead l=new Lead();
+        l.FirstName='shiva';
+        l.lastname='A';
+        l.Company='TCS';
+        l.LeadSource='web';
+        l.Country='US';
+        insert l;
+    
+    test.startTest();
+    LeadBatch lb=new LeadBatch();
+    id jobid=Database.executeBatch(lb);
+    test.stopTest();
+    Lead leads=[select id,leadsource,rating from Lead where Id=:l.id];
+    System.assertEquals('hot', leads.rating);
+        
+
+    }}
