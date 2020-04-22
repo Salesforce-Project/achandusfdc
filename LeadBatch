@@ -2,14 +2,19 @@ Apex Class
 
 global class LeadBatch implements Database.Batchable<sobject> {
     global Database.QueryLocator start(Database.BatchableContext bc){
-      return  Database.getQueryLocator('select id,country from Lead');
+       string usa='usa';
+    string us='us';
+    string unitedStates='united states';
+      string query='select id ,rating,LeadSource,country from Lead where country =: usa OR country=:us OR country=:unitedStates';
+     system.debug('ddd'+query);
+        return  Database.getQueryLocator(query);
     }
     global void execute (Database.BatchableContext bc, List<Lead> scope){
         for(Lead l:scope){
-            if(l.country=='US'){
+           
                 l.Rating='hot';
                 l.LeadSource='web';
-            }
+           
         }update scope;
     }
     global void finish(Database.BatchableContext bc){
@@ -23,16 +28,22 @@ TestClass:
 private class LeadBatch_Test {
     @istest()
      static void testMe(){
+     list<lead> ld=new list<lead>();
+   integer j=100;
+   //integer i=0;
+     for(integer i=0;i<j;i++){
         Lead l=new Lead();
-        l.FirstName='shiva';
-        l.lastname='A';
-        l.Company='TCS';
-        l.LeadSource='web';
+        l.FirstName='shiva'+i;
+        l.lastname='A'+i;
+        l.Company='TCS'+i;
+        l.LeadSource='other';
         l.Country='US';
-        insert l;
+        l.rating='cold';
+        ld.add(l);
+        } insert ld;
     
     test.startTest();
     LeadBatch lb=new LeadBatch();
     id jobid=Database.executeBatch(lb);
     test.stopTest();
-         }}
+     }}
